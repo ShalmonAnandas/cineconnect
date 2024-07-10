@@ -1,183 +1,171 @@
-import 'package:cineconnect/models/subtitle.dart';
 import 'package:equatable/equatable.dart';
 
 class DramaDetails extends Equatable {
   const DramaDetails({
-    required this.description,
-    required this.releaseDate,
-    required this.trailer,
-    required this.country,
-    required this.status,
-    required this.type,
-    required this.nextEpDateId,
-    required this.episodes,
-    required this.episodesCount,
-    required this.label,
-    required this.favoriteId,
-    required this.thumbnail,
     required this.id,
     required this.title,
+    required this.status,
+    required this.genres,
+    required this.otherNames,
+    required this.image,
+    required this.description,
+    required this.releaseDate,
+    required this.episodes,
   });
 
-  final String? description;
-  final DateTime? releaseDate;
-  final String? trailer;
-  final String? country;
-  final String? status;
-  final String? type;
-  final int? nextEpDateId;
-  final List<Episode> episodes;
-  final int? episodesCount;
-  final dynamic label;
-  final int? favoriteId;
-  final String? thumbnail;
-  final int? id;
+  final String? id;
   final String? title;
+  final String? status;
+  final List<String> genres;
+  final List<String> otherNames;
+  final String? image;
+  final String? description;
+  final String? releaseDate;
+  final List<Episode> episodes;
 
   DramaDetails copyWith({
-    String? description,
-    DateTime? releaseDate,
-    String? trailer,
-    String? country,
-    String? status,
-    String? type,
-    int? nextEpDateId,
-    List<Episode>? episodes,
-    int? episodesCount,
-    dynamic label,
-    int? favoriteId,
-    String? thumbnail,
-    int? id,
+    String? id,
     String? title,
+    String? status,
+    List<String>? genres,
+    List<String>? otherNames,
+    String? image,
+    String? description,
+    String? releaseDate,
+    List<Episode>? episodes,
   }) {
     return DramaDetails(
-      description: description ?? this.description,
-      releaseDate: releaseDate ?? this.releaseDate,
-      trailer: trailer ?? this.trailer,
-      country: country ?? this.country,
-      status: status ?? this.status,
-      type: type ?? this.type,
-      nextEpDateId: nextEpDateId ?? this.nextEpDateId,
-      episodes: episodes ?? this.episodes,
-      episodesCount: episodesCount ?? this.episodesCount,
-      label: label ?? this.label,
-      favoriteId: favoriteId ?? this.favoriteId,
-      thumbnail: thumbnail ?? this.thumbnail,
       id: id ?? this.id,
       title: title ?? this.title,
+      status: status ?? this.status,
+      genres: genres ?? this.genres,
+      otherNames: otherNames ?? this.otherNames,
+      image: image ?? this.image,
+      description: description ?? this.description,
+      releaseDate: releaseDate ?? this.releaseDate,
+      episodes: episodes ?? this.episodes,
     );
   }
 
   factory DramaDetails.fromJson(Map<String, dynamic> json) {
     return DramaDetails(
-      description: json["description"],
-      releaseDate: DateTime.tryParse(json["releaseDate"] ?? ""),
-      trailer: json["trailer"],
-      country: json["country"],
+      id: json["id"],
+      title: json["title"],
       status: json["status"],
-      type: json["type"],
-      nextEpDateId: json["nextEpDateID"],
+      genres: json["genres"] == null
+          ? []
+          : List<String>.from(json["genres"]!.map((x) => x)),
+      otherNames: json["otherNames"] == null
+          ? []
+          : List<String>.from(json["otherNames"]!.map((x) => x)),
+      image: json["image"],
+      description: json["description"],
+      releaseDate: json["releaseDate"],
       episodes: json["episodes"] == null
           ? []
           : List<Episode>.from(
               json["episodes"]!.map((x) => Episode.fromJson(x))),
-      episodesCount: json["episodesCount"],
-      label: json["label"],
-      favoriteId: json["favoriteID"],
-      thumbnail: json["thumbnail"],
-      id: json["id"],
-      title: json["title"],
     );
   }
 
   Map<String, dynamic> toJson() => {
-        "description": description,
-        "releaseDate": releaseDate?.toIso8601String(),
-        "trailer": trailer,
-        "country": country,
-        "status": status,
-        "type": type,
-        "nextEpDateID": nextEpDateId,
-        "episodes": episodes.map((x) => x.toJson()).toList(),
-        "episodesCount": episodesCount,
-        "label": label,
-        "favoriteID": favoriteId,
-        "thumbnail": thumbnail,
         "id": id,
         "title": title,
+        "status": status,
+        "genres": genres.map((x) => x).toList(),
+        "otherNames": otherNames.map((x) => x).toList(),
+        "image": image,
+        "description": description,
+        "releaseDate": releaseDate,
+        "episodes": episodes.map((x) => x.toJson()).toList(),
       };
 
   @override
   String toString() {
-    return "$description, $releaseDate, $trailer, $country, $status, $type, $nextEpDateId, $episodes, $episodesCount, $label, $favoriteId, $thumbnail, $id, $title, ";
+    return "$id, $title, $status, $genres, $otherNames, $image, $description, $releaseDate, $episodes, ";
   }
 
   @override
   List<Object?> get props => [
-        description,
-        releaseDate,
-        trailer,
-        country,
-        status,
-        type,
-        nextEpDateId,
-        episodes,
-        episodesCount,
-        label,
-        favoriteId,
-        thumbnail,
         id,
         title,
+        status,
+        genres,
+        otherNames,
+        image,
+        description,
+        releaseDate,
+        episodes,
       ];
 }
 
-// ignore: must_be_immutable
 class Episode extends Equatable {
-  Episode({
+  const Episode({
     required this.id,
-    required this.number,
-    required this.sub,
+    required this.title,
+    required this.episode,
+    required this.subType,
+    required this.releaseDate,
+    required this.url,
   });
 
-  final int? id;
-  final double? number;
-  final int? sub;
+  final String? id;
+  final String? title;
+  final double? episode;
+  final String? subType;
+  final DateTime? releaseDate;
+  final String? url;
 
   Episode copyWith({
-    int? id,
-    double? number,
-    int? sub,
+    String? id,
+    String? title,
+    double? episode,
+    String? subType,
+    DateTime? releaseDate,
+    String? url,
   }) {
     return Episode(
       id: id ?? this.id,
-      number: number ?? this.number,
-      sub: sub ?? this.sub,
+      title: title ?? this.title,
+      episode: episode ?? this.episode,
+      subType: subType ?? this.subType,
+      releaseDate: releaseDate ?? this.releaseDate,
+      url: url ?? this.url,
     );
   }
 
   factory Episode.fromJson(Map<String, dynamic> json) {
     return Episode(
       id: json["id"],
-      number: json["number"],
-      sub: json["sub"],
+      title: json["title"],
+      episode: double.parse(json["episode"].toString()),
+      subType: json["subType"],
+      releaseDate: DateTime.tryParse(json["releaseDate"] ?? ""),
+      url: json["url"],
     );
   }
 
   Map<String, dynamic> toJson() => {
         "id": id,
-        "number": number,
-        "sub": sub,
+        "title": title,
+        "episode": episode,
+        "subType": subType,
+        "releaseDate": releaseDate?.toIso8601String(),
+        "url": url,
       };
 
   @override
   String toString() {
-    return "$id, $number, $sub, ";
+    return "$id, $title, $episode, $subType, $releaseDate, $url, ";
   }
 
   @override
   List<Object?> get props => [
         id,
-        number,
-        sub,
+        title,
+        episode,
+        subType,
+        releaseDate,
+        url,
       ];
 }

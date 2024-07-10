@@ -10,43 +10,31 @@ import 'package:get/get.dart';
 
 class KDramaSearchController extends GetxController {
   TextEditingController searchTextController = TextEditingController();
-  Rx<List<Search>> searchResults = Rx([]);
+  Search? searchResults;
   RxBool isLoading = false.obs;
   Timer? _debounce;
-
-  @override
-  void onInit() {
-    getRecommended();
-    super.onInit();
-  }
-
-  void getRecommended() async {
-    String response = await APIHandler()
-        .sendRequest(APIConstants.searchUrl(searchString: ""));
-    for (var result in jsonDecode(response)) {
-      searchResults.value.add(Search.fromJson(result));
-    }
-    isLoading.value = false;
-  }
 
   void onSearchChanged() {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
     _debounce = Timer(const Duration(seconds: 1), () {
-      getSearchResults();
+      if (searchTextController.text.isNotEmpty) {
+        getSearchResults();
+      } else {
+        isLoading.value = true;
+        searchResults = null;
+        isLoading.value = false;
+      }
     });
   }
 
   void getSearchResults() async {
     isLoading.value = true;
 
-    searchResults.value.clear();
     String response = await APIHandler().sendRequest(
         APIConstants.searchUrl(searchString: searchTextController.text));
 
-    print(response);
-    for (var result in jsonDecode(response)) {
-      searchResults.value.add(Search.fromJson(result));
-    }
+    searchResults = Search.fromJson(jsonDecode(response));
+
     isLoading.value = false;
   }
 }

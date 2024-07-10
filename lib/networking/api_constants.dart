@@ -30,48 +30,18 @@ class APIConstants {
         'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
   };
 
-  /// Returns the URL for the search API with the provided search query.
-  ///
-  /// Parameters:
-  /// - `searchString`: The search query to be used in the API request.
-  ///
-  /// Returns:
-  /// - A `String` representing the URL for the search API.
+  static String baseUrl = "https://consumet-instance-one.vercel.app";
+
   static String searchUrl({String? searchString}) {
     String validString = searchString!.replaceAll(" ", "%20");
-    return "https://kisskh.co/api/DramaList/Search?q=$validString";
+    return "$baseUrl/movies/dramacool/$validString?page=1";
   }
 
-  static String dramaDetailsUrl({int? dramaID}) {
-    /// Returns the URL for fetching details of a drama based on the provided drama ID.
-    ///
-    /// Parameters:
-    ///   - `dramaID`: The ID of the drama.
-    ///
-    /// Returns:
-    ///   A string representing the URL for fetching the drama details.
-    return "https://kisskh.co/api/DramaList/Drama/$dramaID?isq=false";
+  static String dramaDetailsUrl({String? dramaID}) {
+    return "$baseUrl/movies/dramacool/info?id=$dramaID";
   }
 
-  /// Returns the URL for fetching subtitles of an episode based on the provided episode ID.
-  ///
-  /// Parameters:
-  ///   - episodeID: The ID of the episode for which to fetch subtitles.
-  ///
-  /// Returns:
-  ///   A string representing the URL for fetching subtitles.
-  static String subtitleUrl({int? episodeID}) {
-    return "https://kisskh.co/api/Sub/$episodeID";
-  }
-
-  /// Returns the URL for streaming an episode based on the provided episode ID.
-  ///
-  /// Parameters:
-  ///   - episodeID: The ID of the episode to stream.
-  ///
-  /// Returns:
-  ///   A string representing the URL for streaming the episode.
-  static String streamUrl({int? episodeID}) {
-    return "https://kisskh.co/api/DramaList/Episode/$episodeID.png?err=false&ts=&time=";
+  static String streamUrl({String? episodeID, String? dramaID}) {
+    return "$baseUrl/movies/dramacool/watch?episodeId=$episodeID&mediaId=$dramaID&server=asianload";
   }
 }

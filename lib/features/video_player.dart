@@ -1,9 +1,12 @@
+// ignore_for_file: invalid_use_of_visible_for_testing_member
+
 import 'dart:developer';
 
 import 'package:chewie/chewie.dart';
 import 'package:cineconnect/networking/api_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:lottie/lottie.dart';
 import 'package:video_player/video_player.dart';
 import 'package:srt_parser_2/srt_parser_2.dart' as srt;
 
@@ -26,7 +29,9 @@ class _VideoPlayerState extends State<VideoPlayer> {
   void initState() {
     super.initState();
     _initializeVideoPlayer(widget.videoUrl);
-    _loadSubtitles(widget.subtitleUrl);
+    if (widget.subtitleUrl != "") {
+      _loadSubtitles(widget.subtitleUrl);
+    }
   }
 
   Future<void> _initializeVideoPlayer(String videoUrl) async {
@@ -47,6 +52,9 @@ class _VideoPlayerState extends State<VideoPlayer> {
         autoPlay: true,
         looping: true,
         subtitle: _subtitles,
+        allowFullScreen: false,
+        hideControlsTimer: const Duration(milliseconds: 1500),
+        // fullScreenByDefault: true,
         subtitleBuilder: (context, subtitle) {
           return Container(
             padding: const EdgeInsets.all(10.0),
@@ -126,15 +134,60 @@ class _VideoPlayerState extends State<VideoPlayer> {
     super.dispose();
   }
 
+  Future<bool?> _showBackDialog() {
+    return showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Are you sure?'),
+          content: const Text(
+            'Are you sure you want to stop watching?',
+          ),
+          actions: <Widget>[
+            TextButton(
+              style: TextButton.styleFrom(
+                textStyle: Theme.of(context).textTheme.labelLarge,
+              ),
+              child: const Text('Nevermind'),
+              onPressed: () {
+                Navigator.pop(context, false);
+              },
+            ),
+            TextButton(
+              style: TextButton.styleFrom(
+                textStyle: Theme.of(context).textTheme.labelLarge,
+              ),
+              child: const Text('Leave'),
+              onPressed: () {
+                Navigator.pop(context, true);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: _chewieController != null &&
-              _chewieController!.videoPlayerController.value.isInitialized
-          ? Chewie(
-              controller: _chewieController!,
-            )
-          : const CircularProgressIndicator(),
-    );
+    return _chewieController != null &&
+            _chewieController!.videoPlayerController.value.isInitialized
+        ? Material(
+            color: Colors.black,
+            child: Theme(
+              data: ThemeData.dark().copyWith(
+                platform: TargetPlatform.iOS,
+              ),
+              child: Chewie(
+                controller: _chewieController!,
+              ),
+            ),
+          )
+        : Center(
+            child: SizedBox(
+              width: MediaQuery.of(context).size.width * 0.2,
+              child: Lottie.asset("assets/video_load_anim.json"),
+            ),
+          );
   }
 }

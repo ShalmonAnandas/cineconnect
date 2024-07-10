@@ -1,72 +1,117 @@
 import 'package:equatable/equatable.dart';
 
 class Search extends Equatable {
-  const Search({
-    required this.episodesCount,
-    required this.label,
-    required this.favoriteId,
-    required this.thumbnail,
-    required this.id,
-    required this.title,
+  Search({
+    required this.currentPage,
+    required this.totalPages,
+    required this.hasNextPage,
+    required this.results,
   });
 
-  final int? episodesCount;
-  final String? label;
-  final int? favoriteId;
-  final String? thumbnail;
-  final int? id;
-  final String? title;
+  final String? currentPage;
+  final int? totalPages;
+  final bool? hasNextPage;
+  final List<Result> results;
 
   Search copyWith({
-    int? episodesCount,
-    String? label,
-    int? favoriteId,
-    String? thumbnail,
-    int? id,
-    String? title,
+    String? currentPage,
+    int? totalPages,
+    bool? hasNextPage,
+    List<Result>? results,
   }) {
     return Search(
-      episodesCount: episodesCount ?? this.episodesCount,
-      label: label ?? this.label,
-      favoriteId: favoriteId ?? this.favoriteId,
-      thumbnail: thumbnail ?? this.thumbnail,
-      id: id ?? this.id,
-      title: title ?? this.title,
+      currentPage: currentPage ?? this.currentPage,
+      totalPages: totalPages ?? this.totalPages,
+      hasNextPage: hasNextPage ?? this.hasNextPage,
+      results: results ?? this.results,
     );
   }
 
   factory Search.fromJson(Map<String, dynamic> json) {
     return Search(
-      episodesCount: json["episodesCount"],
-      label: json["label"],
-      favoriteId: json["favoriteID"],
-      thumbnail: json["thumbnail"],
-      id: json["id"],
-      title: json["title"],
+      currentPage: json["currentPage"],
+      totalPages: int.tryParse(json["totalPages"].toString()),
+      hasNextPage: json["hasNextPage"],
+      results: json["results"] == null
+          ? []
+          : List<Result>.from(json["results"]!.map((x) => Result.fromJson(x))),
     );
   }
 
   Map<String, dynamic> toJson() => {
-        "episodesCount": episodesCount,
-        "label": label,
-        "favoriteID": favoriteId,
-        "thumbnail": thumbnail,
-        "id": id,
-        "title": title,
+        "currentPage": currentPage,
+        "totalPages": totalPages,
+        "hasNextPage": hasNextPage,
+        "results": results.map((x) => x?.toJson()).toList(),
       };
 
   @override
   String toString() {
-    return "$episodesCount, $label, $favoriteId, $thumbnail, $id, $title, ";
+    return "$currentPage, $totalPages, $hasNextPage, $results, ";
   }
 
   @override
   List<Object?> get props => [
-        episodesCount,
-        label,
-        favoriteId,
-        thumbnail,
+        currentPage,
+        totalPages,
+        hasNextPage,
+        results,
+      ];
+}
+
+class Result extends Equatable {
+  Result({
+    required this.id,
+    required this.title,
+    required this.url,
+    required this.image,
+  });
+
+  final String? id;
+  final String? title;
+  final String? url;
+  final String? image;
+
+  Result copyWith({
+    String? id,
+    String? title,
+    String? url,
+    String? image,
+  }) {
+    return Result(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      url: url ?? this.url,
+      image: image ?? this.image,
+    );
+  }
+
+  factory Result.fromJson(Map<String, dynamic> json) {
+    return Result(
+      id: json["id"],
+      title: json["title"],
+      url: json["url"],
+      image: json["image"],
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        "id": id,
+        "title": title,
+        "url": url,
+        "image": image,
+      };
+
+  @override
+  String toString() {
+    return "$id, $title, $url, $image, ";
+  }
+
+  @override
+  List<Object?> get props => [
         id,
         title,
+        url,
+        image,
       ];
 }

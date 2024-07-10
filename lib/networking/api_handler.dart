@@ -1,30 +1,12 @@
-import 'dart:convert';
-
-import 'package:archive/archive.dart';
-import 'package:brotli/brotli.dart';
-import 'package:cineconnect/networking/api_constants.dart';
 import 'package:http/http.dart' as http;
 
 class APIHandler {
-  // Sends a request to the specified URL asynchronously.
-  // Decodes the response body based on the content-encoding type (gzip, br, or none).
-  // Prints the decoded response body.
   Future<String> sendRequest(String url) async {
-    http.Response response = await http.get(
-      Uri.parse(url),
-      headers: APIConstants.headers,
-    );
+    http.Response response = await http.get(Uri.parse(url), headers: {
+      "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+    });
 
-    List<int> bytes = response.bodyBytes;
-    String responseBody;
-    if (response.headers['content-encoding'] == 'gzip') {
-      responseBody = utf8.decode(GZipDecoder().decodeBytes(bytes));
-    } else if (response.headers['content-encoding'] == 'br') {
-      responseBody = utf8.decode(brotli.decode(bytes));
-    } else {
-      responseBody = utf8.decode(bytes);
-    }
-
-    return responseBody;
+    return response.body;
   }
 }
