@@ -1,8 +1,11 @@
-import 'package:cineconnect/features/search/search_ui.dart';
-import 'package:cineconnect/features/video_player.dart';
+import 'package:cineconnect/bottom_navigation_scaffold.dart';
+import 'package:cineconnect/custom_error_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
-void main() {
+void main() async {
+  await Hive.initFlutter();
   runApp(const MyApp());
 }
 
@@ -22,7 +25,16 @@ class _MyAppState extends State<MyApp> {
         brightness: Brightness.dark,
         useMaterial3: true,
       ),
-      home: const SearchScreen(),
+      builder: (context, widget) {
+        ErrorWidget.builder = (FlutterErrorDetails errorDetails) {
+          return CustomErrorScreenInFlutter(
+            errorDetails: errorDetails.toString(),
+          );
+        };
+
+        return widget!;
+      },
+      home: const BottomNavigationScaffold(),
     );
   }
 }

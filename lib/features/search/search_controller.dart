@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:developer';
 
 import 'package:cineconnect/models/search.dart';
 import 'package:cineconnect/networking/api_constants.dart';
@@ -8,7 +7,7 @@ import 'package:cineconnect/networking/api_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class KDramaSearchController extends GetxController {
+class MediaSearchController extends GetxController {
   TextEditingController searchTextController = TextEditingController();
   Search? searchResults;
   RxBool isLoading = false.obs;

@@ -1,27 +1,23 @@
 import 'package:equatable/equatable.dart';
 
 class Search extends Equatable {
-  Search({
+  const Search({
     required this.currentPage,
-    required this.totalPages,
     required this.hasNextPage,
     required this.results,
   });
 
   final String? currentPage;
-  final int? totalPages;
   final bool? hasNextPage;
   final List<Result> results;
 
   Search copyWith({
     String? currentPage,
-    int? totalPages,
     bool? hasNextPage,
     List<Result>? results,
   }) {
     return Search(
       currentPage: currentPage ?? this.currentPage,
-      totalPages: totalPages ?? this.totalPages,
       hasNextPage: hasNextPage ?? this.hasNextPage,
       results: results ?? this.results,
     );
@@ -30,7 +26,6 @@ class Search extends Equatable {
   factory Search.fromJson(Map<String, dynamic> json) {
     return Search(
       currentPage: json["currentPage"],
-      totalPages: int.tryParse(json["totalPages"].toString()),
       hasNextPage: json["hasNextPage"],
       results: json["results"] == null
           ? []
@@ -40,58 +35,71 @@ class Search extends Equatable {
 
   Map<String, dynamic> toJson() => {
         "currentPage": currentPage,
-        "totalPages": totalPages,
         "hasNextPage": hasNextPage,
-        "results": results.map((x) => x?.toJson()).toList(),
+        "results": results.map((x) => x.toJson()).toList(),
       };
 
   @override
   String toString() {
-    return "$currentPage, $totalPages, $hasNextPage, $results, ";
+    return "$currentPage, $hasNextPage, $results, ";
   }
 
   @override
   List<Object?> get props => [
         currentPage,
-        totalPages,
         hasNextPage,
         results,
       ];
 }
 
 class Result extends Equatable {
-  Result({
+  const Result({
     required this.id,
     required this.title,
     required this.url,
     required this.image,
+    required this.seasons,
+    required this.type,
+    required this.releaseDate,
   });
 
   final String? id;
   final String? title;
   final String? url;
   final String? image;
+  final int? seasons;
+  final String? type;
+  final String? releaseDate;
 
   Result copyWith({
     String? id,
     String? title,
     String? url,
     String? image,
+    int? seasons,
+    String? type,
+    String? releaseDate,
   }) {
     return Result(
       id: id ?? this.id,
       title: title ?? this.title,
       url: url ?? this.url,
       image: image ?? this.image,
+      seasons: seasons ?? this.seasons,
+      type: type ?? this.type,
+      releaseDate: releaseDate ?? this.releaseDate,
     );
   }
 
   factory Result.fromJson(Map<String, dynamic> json) {
     return Result(
-      id: json["id"],
+      id: json["id"].toString(),
       title: json["title"],
       url: json["url"],
       image: json["image"],
+      seasons: json["seasons"],
+      type: json["type"],
+      releaseDate: json["releaseDate"],
     );
   }
 
@@ -100,11 +108,14 @@ class Result extends Equatable {
         "title": title,
         "url": url,
         "image": image,
+        "seasons": seasons,
+        "type": type,
+        "releaseDate": releaseDate,
       };
 
   @override
   String toString() {
-    return "$id, $title, $url, $image, ";
+    return "$id, $title, $url, $image, $seasons, $type, $releaseDate, ";
   }
 
   @override
@@ -113,5 +124,8 @@ class Result extends Equatable {
         title,
         url,
         image,
+        seasons,
+        type,
+        releaseDate,
       ];
 }

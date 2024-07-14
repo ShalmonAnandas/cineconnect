@@ -31,9 +31,7 @@ dependencies:
   flutter:
     sdk: flutter
   chewie: ^1.8.1
-  subtitle_wrapper_package: ^2.2.1
   video_player: ^2.9.1
-  srt_parser_2: ^2.0.2
   cupertino_icons: ^1.0.6
   http: ^1.2.1
   file_picker: ^8.0.6
@@ -46,10 +44,20 @@ dependencies:
   cached_network_image: ^3.3.1
   lottie: ^3.1.2
   fluttertoast: ^8.2.6
+  subtitle: ^0.1.0
+  dropdown_button2: ^2.3.9
+  salomon_bottom_bar: ^3.3.2
+  buttons_tabbar: ^1.3.12
+  flutter_svg: ^2.0.10+1
+  #hive
+  hive_flutter: ^1.1.0
+  hive: ^2.2.3
 
 dev_dependencies:
-  flutter_test:
-    sdk: flutter
+  hive_generator: ^2.0.1
+  build_runner: ^2.4.11
+  # flutter_test:
+  #   sdk: flutter
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

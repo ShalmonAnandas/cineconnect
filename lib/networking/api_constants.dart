@@ -30,18 +30,18 @@ class APIConstants {
         'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
   };
 
-  static String baseUrl = "https://consumet-instance-one.vercel.app";
+  static String baseUrl = "https://consumet-instance-shalmon.vercel.app";
 
   static String searchUrl({String? searchString}) {
     String validString = searchString!.replaceAll(" ", "%20");
-    return "$baseUrl/movies/dramacool/$validString?page=1";
+    return "$baseUrl/meta/tmdb/$validString?page=1";
   }
 
-  static String dramaDetailsUrl({String? dramaID}) {
-    return "$baseUrl/movies/dramacool/info?id=$dramaID";
+  static String dramaDetailsUrl({String? dramaID, String? type}) {
+    return "$baseUrl/meta/tmdb/info/$dramaID?type=$type";
   }
 
   static String streamUrl({String? episodeID, String? dramaID}) {
-    return "$baseUrl/movies/dramacool/watch?episodeId=$episodeID&mediaId=$dramaID&server=asianload";
+    return "$baseUrl/meta/tmdb/watch/$episodeID?id=$dramaID";
   }
 }

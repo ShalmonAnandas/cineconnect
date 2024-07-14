@@ -1,6 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:cineconnect/constants.dart';
-import 'package:cineconnect/features/drama/drama_ui.dart';
+import 'package:cineconnect/features/drama/media_ui.dart';
+import 'package:cineconnect/features/search/search_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -14,39 +14,19 @@ class SearchScreen extends StatefulWidget {
 }
 
 class _SearchScreenState extends State<SearchScreen> {
+  MediaSearchController searchController = Get.put(MediaSearchController());
+
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        // Container(
-        //   height: MediaQuery.of(context).size.height,
-        //   width: MediaQuery.of(context).size.width,
-        //   decoration: const BoxDecoration(
-        //     gradient: LinearGradient(
-        //         begin: Alignment.topCenter,
-        //         end: Alignment.bottomCenter,
-        //         colors: [
-        //           Color.fromRGBO(0, 77, 121, 1),
-        //           Color.fromRGBO(0, 31, 64, 1),
-        //           Color.fromRGBO(0, 31, 64, 1),
-        //           Color.fromRGBO(80, 22, 57, 1),
-        //         ],
-        //         stops: [
-        //           0,
-        //           0.2,
-        //           0.6,
-        //           1
-        //         ]),
-        //   ),
-        // ),
         Scaffold(
-          backgroundColor: Colors.transparent,
           appBar: AppBar(
             backgroundColor: Colors.transparent,
             elevation: 0,
             scrolledUnderElevation: 0,
             title: Text(
-              "Hi, User",
+              "Search",
               style: GoogleFonts.quicksand(
                 fontSize: 24,
                 fontWeight: FontWeight.w700,
@@ -60,15 +40,14 @@ class _SearchScreenState extends State<SearchScreen> {
                     const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
                 child: TextField(
                   onChanged: (string) {
-                    AppConstants.searchController.onSearchChanged();
+                    searchController.onSearchChanged();
                     setState(() {});
                   },
                   onTapOutside: (event) => WidgetsBinding
                       .instance.focusManager.primaryFocus
                       ?.unfocus(),
                   autofocus: false,
-                  controller:
-                      AppConstants.searchController.searchTextController,
+                  controller: searchController.searchTextController,
                   style: GoogleFonts.quicksand(),
                   decoration: InputDecoration(
                     label: Text(
@@ -80,23 +59,22 @@ class _SearchScreenState extends State<SearchScreen> {
                     ),
                     hintStyle: GoogleFonts.quicksand(),
                     prefixIcon: const Icon(Icons.search),
-                    suffixIcon: AppConstants
-                            .searchController.searchTextController.text.isEmpty
-                        ? null
-                        : IconButton(
-                            icon: const Icon(Icons.clear),
-                            onPressed: () {
-                              AppConstants.searchController.searchTextController
-                                  .clear();
-                              AppConstants.searchController.onSearchChanged();
-                              setState(() {});
-                            },
-                          ),
+                    suffixIcon:
+                        searchController.searchTextController.text.isEmpty
+                            ? null
+                            : IconButton(
+                                icon: const Icon(Icons.clear),
+                                onPressed: () {
+                                  searchController.searchTextController.clear();
+                                  searchController.onSearchChanged();
+                                  setState(() {});
+                                },
+                              ),
                   ),
                 ),
               ),
               Obx(
-                () => AppConstants.searchController.isLoading.value
+                () => searchController.isLoading.value
                     ? Expanded(
                         child: GridView.builder(
                           gridDelegate:
@@ -127,13 +105,12 @@ class _SearchScreenState extends State<SearchScreen> {
                           },
                         ),
                       )
-                    : AppConstants.searchController.searchResults == null ||
-                            AppConstants
-                                .searchController.searchResults!.results.isEmpty
+                    : searchController.searchResults == null ||
+                            searchController.searchResults!.results.isEmpty
                         ? Expanded(
                             child: Center(
                               child: Text(
-                                AppConstants.searchController
+                                searchController
                                         .searchTextController.text.isNotEmpty
                                     ? "No Results Found"
                                     : "Search To Get Started",
@@ -144,7 +121,7 @@ class _SearchScreenState extends State<SearchScreen> {
                           )
                         : Expanded(
                             child: GridView.builder(
-                              itemCount: AppConstants.searchController
+                              itemCount: searchController
                                   .searchResults!.results.length,
                               itemBuilder: (context, index) {
                                 double leftPadding = index % 2 == 0 ? 16 : 8;
@@ -158,8 +135,14 @@ class _SearchScreenState extends State<SearchScreen> {
                                       ClipRRect(
                                         borderRadius: BorderRadius.circular(12),
                                         child: CachedNetworkImage(
-                                          imageUrl: AppConstants
-                                              .searchController
+                                          errorWidget: (context, string, obj) =>
+                                              Image.asset(
+                                            "assets/default_poster.jpg",
+                                            fit: BoxFit.cover,
+                                          ),
+                                          fadeInDuration:
+                                              const Duration(milliseconds: 100),
+                                          imageUrl: searchController
                                               .searchResults!
                                               .results[index]
                                               .image!,
@@ -188,11 +171,8 @@ class _SearchScreenState extends State<SearchScreen> {
                                       Padding(
                                         padding: const EdgeInsets.all(12),
                                         child: Text(
-                                          AppConstants
-                                                  .searchController
-                                                  .searchResults!
-                                                  .results[index]
-                                                  .title ??
+                                          searchController.searchResults!
+                                                  .results[index].title ??
                                               "",
                                           textAlign: TextAlign.center,
                                           style: GoogleFonts.quicksand(
@@ -212,17 +192,19 @@ class _SearchScreenState extends State<SearchScreen> {
                                               context,
                                               MaterialPageRoute(
                                                 builder: (context) =>
-                                                    DramaScreen(
-                                                  id: AppConstants
-                                                      .searchController
+                                                    MediaScreen(
+                                                  id: searchController
                                                       .searchResults!
                                                       .results[index]
                                                       .id!,
-                                                  bgImage: AppConstants
-                                                      .searchController
+                                                  bgImage: searchController
                                                       .searchResults!
                                                       .results[index]
                                                       .image!,
+                                                  mediaType: searchController
+                                                      .searchResults!
+                                                      .results[index]
+                                                      .type!,
                                                 ),
                                               ),
                                             ),
