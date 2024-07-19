@@ -6,6 +6,13 @@ import 'package:cineconnect/features/drama/episode_select/episode_select.dart';
 import 'package:cineconnect/features/drama/media_controller.dart';
 import 'package:cineconnect/features/video_player/video_player.dart';
 import 'package:cineconnect/models/media_details.dart';
+import 'package:cineconnect/models/stream_model.dart';
+import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
+import 'package:ffmpeg_kit_flutter/ffmpeg_kit_config.dart';
+import 'package:ffmpeg_kit_flutter/log.dart';
+import 'package:ffmpeg_kit_flutter/return_code.dart';
+import 'package:ffmpeg_kit_flutter/session.dart';
+import 'package:ffmpeg_kit_flutter/statistics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -30,6 +37,7 @@ class MediaScreen extends StatefulWidget {
 class _MediaScreenState extends State<MediaScreen> {
   MediaController mediaController = Get.put(MediaController());
   MediaModel? mediaDetails;
+  bool isDownload = true;
 
   @override
   void initState() {
@@ -256,7 +264,77 @@ class _MediaScreenState extends State<MediaScreen> {
                                           MediaQuery.of(context).size.height *
                                               0.07,
                                       child: OutlinedButton(
-                                        onPressed: () {},
+                                        onPressed: () async {
+                                          StreamModel model =
+                                              await mediaController.getStreams(
+                                                  mediaDetails!.episodeId!,
+                                                  mediaDetails!.id!);
+
+                                          if (isDownload) {
+                                            FFmpegKitConfig
+                                                    .selectDocumentForWrite(
+                                                        'video.mp4', 'video/*')
+                                                .then((uri) {
+                                              FFmpegKitConfig
+                                                      .getSafParameterForWrite(
+                                                          uri!)
+                                                  .then((safUrl) {
+                                                FFmpegKit.executeAsync(
+                                                    "-i ${model.sources.first.url} -c copy -bsf:a aac_adtstoasc ${safUrl}",
+                                                    (Session session) async {
+                                                  final returnCode =
+                                                      await session
+                                                          .getReturnCode();
+
+                                                  print(
+                                                      "session state  ===== ${await session.getState()}");
+
+                                                  if (ReturnCode.isSuccess(
+                                                      returnCode)) {
+                                                    print("success");
+                                                  } else if (ReturnCode
+                                                      .isCancel(returnCode)) {
+                                                    print("dailure");
+                                                  } else {
+                                                    final logs =
+                                                        await session.getLogs();
+                                                    print(
+                                                        "error ${logs.map((element) => element.getMessage().toString())}");
+                                                  }
+                                                }, (Log log) {
+                                                  print(
+                                                      "LOGS :::: ${log.getMessage()}");
+                                                }, (Statistics statistics) {
+                                                  print(
+                                                      "STATS ::::: ${statistics.getSize()}");
+                                                });
+                                              });
+                                            });
+                                            isDownload = false;
+                                          } else {
+                                            FFmpegKit.cancel();
+                                            isDownload = true;
+                                          }
+                                          // FFmpegKit.execute(
+                                          //         '-i ${model.sources.first.url} -c copy -bsf:a aac_adtstoasc output.mp4')
+                                          //     .then((session) async {
+                                          //   final returnCode =
+                                          //       await session.getReturnCode();
+
+                                          //   if (ReturnCode.isSuccess(
+                                          //       returnCode)) {
+                                          //     print("success");
+                                          //   } else if (ReturnCode.isCancel(
+                                          //       returnCode)) {
+                                          //     print("dailure");
+                                          //   } else {
+                                          //     final logs =
+                                          //         await session.getLogs();
+                                          //     print(
+                                          //         "error ${logs.map((element) => element.getMessage().toString())}");
+                                          //   }
+                                          // });
+                                        },
                                         style: OutlinedButton.styleFrom(
                                           foregroundColor: Colors.white,
                                           shape: RoundedRectangleBorder(
