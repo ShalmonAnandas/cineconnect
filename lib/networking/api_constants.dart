@@ -32,13 +32,13 @@ class APIConstants {
 
   static String baseUrl = "https://consumet-instance-shalmon.vercel.app";
 
-  static String searchUrl({String? searchString}) {
+  static String urlGenerator({String? provider, String? searchString}) {
     String validString = searchString!.replaceAll(" ", "%20");
-    return "$baseUrl/meta/tmdb/$validString?page=1";
+    return "$baseUrl/movies/$provider/$validString";
   }
 
-  static String dramaDetailsUrl({String? dramaID, String? type}) {
-    return "$baseUrl/meta/tmdb/info/$dramaID?type=$type";
+  static String dramaDetailsUrl({String? provider, String? dramaID}) {
+    return "$baseUrl/movies/$provider/info?id=$dramaID";
   }
 
   static String streamUrl({String? episodeID, String? dramaID}) {

@@ -12,9 +12,9 @@ class MediaController extends GetxController {
   MediaModel? dramaDetails;
   RxBool isLoading = true.obs;
 
-  Future<MediaModel> getDramaDetails(String id, String type) async {
+  Future<MediaModel> getDramaDetails(String id, String provider) async {
     isLoading.value = true;
-    String fetchKey = "media_details_${id}_$type";
+    String fetchKey = "media_details_${id}_$provider";
 
     var box = await Hive.openBox('mediaBox');
 
@@ -23,11 +23,15 @@ class MediaController extends GetxController {
     if (mediaDetails != null && jsonDecode(mediaDetails)["statusCode"] != 500) {
       dramaDetails = MediaModel.fromJson(jsonDecode(mediaDetails));
     } else {
-      String response = await APIHandler()
-          .sendRequest(APIConstants.dramaDetailsUrl(dramaID: id, type: type));
+      String response = await APIHandler().sendRequest(
+          APIConstants.dramaDetailsUrl(provider: provider, dramaID: id));
 
-      dramaDetails = MediaModel.fromJson(jsonDecode(response));
-      box.put(fetchKey, response);
+      Map<String, dynamic> updatedResponse = jsonDecode(response);
+
+      updatedResponse["recommendations"] = [];
+
+      dramaDetails = MediaModel.fromJson(updatedResponse);
+      box.put(fetchKey, updatedResponse);
     }
     isLoading.value = false;
     return dramaDetails!;

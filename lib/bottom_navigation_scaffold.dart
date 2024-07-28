@@ -22,18 +22,37 @@ class _BottomNavigationScaffoldState extends State<BottomNavigationScaffold> {
         onTap: (i) => setState(() => _currentIndex = i),
         items: [
           SalomonBottomBarItem(
-            icon: const Icon(Icons.fiber_smart_record_outlined),
-            title: const Text("Trending"),
+            icon: const Icon(Icons.other_houses_rounded),
+            title: const Text("Home"),
             selectedColor: Colors.teal.withOpacity(0.8),
           ),
           SalomonBottomBarItem(
-            icon: const Icon(Icons.south_america_sharp),
+            icon: const Icon(Icons.travel_explore_rounded),
             title: const Text("Search"),
+            selectedColor: Colors.teal.withOpacity(0.8),
+          ),
+          SalomonBottomBarItem(
+            icon: const Icon(Icons.book_rounded),
+            title: const Text("Books"),
+            selectedColor: Colors.teal.withOpacity(0.8),
+          ),
+          SalomonBottomBarItem(
+            icon: const Icon(Icons.mp_rounded),
+            title: const Text("Manga"),
+            selectedColor: Colors.teal.withOpacity(0.8),
+          ),
+          SalomonBottomBarItem(
+            icon: const Icon(Icons.podcasts_rounded),
+            title: const Text("Rooms"),
             selectedColor: Colors.teal.withOpacity(0.8),
           ),
         ],
       ),
-      body: _currentIndex == 0 ? const TrendingScreen() : const SearchScreen(),
+      body: _currentIndex == 0
+          ? const HomeScreen()
+          : const SearchScreen(
+              provider: "all",
+            ),
     );
   }
 }

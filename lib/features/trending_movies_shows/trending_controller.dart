@@ -8,32 +8,31 @@ import 'package:hive_flutter/hive_flutter.dart';
 
 class TrendingController extends GetxController {
   RxBool isLoading = false.obs;
-  Search? trendingResults;
 
-  @override
-  void onInit() {
-    getTrending();
-    super.onInit();
-  }
-
-  void getTrending() async {
+  Future<List<Search>> getHomepageData(String provider, String type) async {
     DateTime today = DateTime.now();
-    String fetchKey = 'trending_${today.day}_${today.month}_${today.year}';
-    isLoading.value = true;
+    String fetchKey =
+        '${provider}_${type}_${today.day}_${today.month}_${today.year}';
 
-    var box = await Hive.openBox('trendingBox');
+    List<Search> results = [];
+
+    var box = await Hive.openBox('${type}Box');
 
     var cacheData = box.get(fetchKey);
 
     if (cacheData != null) {
-      trendingResults = Search.fromJson(jsonDecode(cacheData));
+      for (Map<String, dynamic> data in jsonDecode(cacheData)) {
+        results.add(Search.fromJson(data));
+      }
     } else {
-      String response = await APIHandler()
-          .sendRequest(APIConstants.searchUrl(searchString: "trending"));
-      box.put(fetchKey, response);
-      trendingResults = Search.fromJson(jsonDecode(response));
-    }
+      String response = await APIHandler().sendRequest(
+          APIConstants.urlGenerator(provider: provider, searchString: type));
 
-    isLoading.value = false;
+      box.put(fetchKey, response);
+      for (Map<String, dynamic> data in jsonDecode(response)) {
+        results.add(Search.fromJson(data));
+      }
+    }
+    return results;
   }
 }

@@ -1,7 +1,6 @@
 import 'package:cineconnect/bottom_navigation_scaffold.dart';
 import 'package:cineconnect/custom_error_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 void main() async {

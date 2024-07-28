@@ -42,9 +42,7 @@ class CustomErrorScreenInFlutter extends StatelessWidget {
                   ),
                 ),
                 InkWell(
-                  onTap: () {
-                    print("Anime Search");
-                  },
+                  onTap: () {},
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     child: Text(

@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'dart:ui';
 
+import 'package:cached_memory_image/cached_memory_image.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cineconnect/custom_error_screen.dart';
 import 'package:cineconnect/features/drama/episode_select/episode_select.dart';
@@ -24,11 +26,15 @@ class MediaScreen extends StatefulWidget {
       {super.key,
       required this.id,
       required this.bgImage,
-      required this.mediaType});
+      required this.mediaType,
+      this.base64Image,
+      required this.provider});
 
   final String id;
   final String bgImage;
   final String mediaType;
+  final String? base64Image;
+  final String provider;
 
   @override
   State<MediaScreen> createState() => _MediaScreenState();
@@ -43,7 +49,7 @@ class _MediaScreenState extends State<MediaScreen> {
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       mediaDetails =
-          await mediaController.getDramaDetails(widget.id, widget.mediaType);
+          await mediaController.getDramaDetails(widget.id, widget.provider);
     });
 
     super.initState();
@@ -58,9 +64,17 @@ class _MediaScreenState extends State<MediaScreen> {
             height: MediaQuery.of(context).size.height,
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: CachedNetworkImageProvider(
-                  widget.bgImage,
-                ),
+                image: widget.provider == "dramacool"
+                    ? CachedNetworkImageProvider(
+                        widget.bgImage,
+                      )
+                    : CachedMemoryImageProvider(
+                        "${widget.provider}_${widget.id}",
+                        bytes: base64Decode(
+                          widget.base64Image!
+                              .replaceAll("data:image/jpeg;base64,", ''),
+                        ),
+                      ),
                 fit: BoxFit.cover,
               ),
             ),
@@ -101,12 +115,20 @@ class _MediaScreenState extends State<MediaScreen> {
                                           MediaQuery.of(context).size.height *
                                               0.4,
                                       width: MediaQuery.of(context).size.width,
-                                      child: CachedNetworkImage(
-                                        imageUrl: mediaDetails?.cover ?? "",
-                                        fit: BoxFit.cover,
-                                        errorWidget: (context, url, error) =>
-                                            Container(),
-                                      ),
+                                      child: widget.provider == "dramacool"
+                                          ? CachedNetworkImage(
+                                              imageUrl: widget.bgImage,
+                                            )
+                                          : CachedMemoryImage(
+                                              uniqueKey:
+                                                  "${widget.provider}_${widget.id}",
+                                              bytes: base64Decode(
+                                                mediaDetails!.cover!.replaceAll(
+                                                    "data:image/jpeg;base64,",
+                                                    ''),
+                                              ),
+                                              fit: BoxFit.cover,
+                                            ),
                                     ),
                                     Padding(
                                       padding: const EdgeInsets.only(
@@ -378,7 +400,9 @@ class _MediaScreenState extends State<MediaScreen> {
                                 )
                               ],
                             ),
-                            MovieSection(mediaModel: mediaDetails),
+                            // MovieSection(
+                            //     mediaModel: mediaDetails,
+                            //     provider: widget.provider),
                           ],
                         ),
                       ),
@@ -390,9 +414,11 @@ class _MediaScreenState extends State<MediaScreen> {
 }
 
 class MovieSection extends StatefulWidget {
-  const MovieSection({super.key, required this.mediaModel});
+  const MovieSection(
+      {super.key, required this.mediaModel, required this.provider});
 
   final MediaModel? mediaModel;
+  final String provider;
 
   @override
   State<MovieSection> createState() => _MovieSectionState();
@@ -414,7 +440,10 @@ class _MovieSectionState extends State<MovieSection> {
             ),
           ),
         ),
-        SimilarAndRecommended(similar: widget.mediaModel?.similar ?? []),
+        SimilarAndRecommended(
+          similar: widget.mediaModel?.similar ?? [],
+          provider: widget.provider,
+        ),
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
           child: Text(
@@ -426,16 +455,20 @@ class _MovieSectionState extends State<MovieSection> {
           ),
         ),
         SimilarAndRecommended(
-            similar: widget.mediaModel?.recommendations ?? []),
+          similar: widget.mediaModel?.recommendations ?? [],
+          provider: widget.provider,
+        ),
       ],
     );
   }
 }
 
 class SimilarAndRecommended extends StatefulWidget {
-  const SimilarAndRecommended({super.key, required this.similar});
+  const SimilarAndRecommended(
+      {super.key, required this.similar, required this.provider});
 
   final List<Recommendation> similar;
+  final String provider;
 
   @override
   State<SimilarAndRecommended> createState() => _SimilarAndRecommendedState();
@@ -457,13 +490,16 @@ class _SimilarAndRecommendedState extends State<SimilarAndRecommended> {
             padding: EdgeInsets.fromLTRB(firstPadding, 0, lastPadding, 0),
             child: InkWell(
               onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => MediaScreen(
-                            id: widget.similar[index].id.toString(),
-                            mediaType: widget.similar[index].type!,
-                            bgImage: widget.similar[index].image!,
-                          ))),
+                context,
+                MaterialPageRoute(
+                  builder: (context) => MediaScreen(
+                    id: widget.similar[index].id.toString(),
+                    mediaType: widget.similar[index].type!,
+                    bgImage: widget.similar[index].image!,
+                    provider: widget.provider,
+                  ),
+                ),
+              ),
               child: Container(
                 height: MediaQuery.of(context).size.height * 0.2,
                 width: 100,

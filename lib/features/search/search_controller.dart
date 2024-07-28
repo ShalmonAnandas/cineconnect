@@ -9,9 +9,10 @@ import 'package:get/get.dart';
 
 class MediaSearchController extends GetxController {
   TextEditingController searchTextController = TextEditingController();
-  Search? searchResults;
+  List<Search> searchResults = [];
   RxBool isLoading = false.obs;
   Timer? _debounce;
+  String provider = "";
 
   void onSearchChanged() {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
@@ -20,7 +21,7 @@ class MediaSearchController extends GetxController {
         getSearchResults();
       } else {
         isLoading.value = true;
-        searchResults = null;
+        searchResults = [];
         isLoading.value = false;
       }
     });
@@ -29,10 +30,16 @@ class MediaSearchController extends GetxController {
   void getSearchResults() async {
     isLoading.value = true;
 
-    String response = await APIHandler().sendRequest(
-        APIConstants.searchUrl(searchString: searchTextController.text));
+    String response = await APIHandler().sendRequest(APIConstants.urlGenerator(
+        provider: provider, searchString: searchTextController.text));
 
-    searchResults = Search.fromJson(jsonDecode(response));
+    List searchresponse = jsonDecode(response)["results"];
+
+    searchResults = [];
+
+    for (Map<String, dynamic> data in searchresponse) {
+      searchResults.add(Search.fromJson(data));
+    }
 
     isLoading.value = false;
   }

@@ -308,7 +308,7 @@ class Recommendation extends Equatable {
     required this.releaseDate,
   });
 
-  final int? id;
+  final String? id;
   final String? title;
   final String? image;
   final String? type;
@@ -316,7 +316,7 @@ class Recommendation extends Equatable {
   final String? releaseDate;
 
   Recommendation copyWith({
-    int? id,
+    String? id,
     String? title,
     String? image,
     String? type,

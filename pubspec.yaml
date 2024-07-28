@@ -32,28 +32,26 @@ dependencies:
     sdk: flutter
   chewie: ^1.8.1
   video_player: ^2.9.1
-  cupertino_icons: ^1.0.6
   http: ^1.2.1
-  file_picker: ^8.0.6
   archive: ^3.6.1
-  brotli: ^0.6.0
   get: ^4.6.6
   equatable: ^2.0.5
   google_fonts: ^6.2.1
   shimmer: ^3.0.0
   cached_network_image: ^3.3.1
+  cached_memory_image: ^1.5.0
   lottie: ^3.1.2
   fluttertoast: ^8.2.6
   subtitle: ^0.1.0
-  dropdown_button2: ^2.3.9
   salomon_bottom_bar: ^3.3.2
   buttons_tabbar: ^1.3.12
-  flutter_svg: ^2.0.10+1
   #ffmpeg
   ffmpeg_kit_flutter: ^6.0.3
   #hive
   hive_flutter: ^1.1.0
   hive: ^2.2.3
+  # new ui
+  carousel_slider: ^4.2.1
 
 dev_dependencies:
   hive_generator: ^2.0.1
