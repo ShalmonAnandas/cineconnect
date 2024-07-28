@@ -4,9 +4,9 @@ import 'dart:ui';
 import 'package:cached_memory_image/cached_memory_image.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cineconnect/custom_error_screen.dart';
-import 'package:cineconnect/features/drama/episode_select/episode_select.dart';
-import 'package:cineconnect/features/drama/media_controller.dart';
-import 'package:cineconnect/features/video_player/video_player.dart';
+import 'package:cineconnect/features/movies_and_shows/drama/episode_select/episode_select.dart';
+import 'package:cineconnect/features/movies_and_shows/drama/media_controller.dart';
+import 'package:cineconnect/features/readers_and_players/video_player.dart';
 import 'package:cineconnect/models/media_details.dart';
 import 'package:cineconnect/models/stream_model.dart';
 import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
@@ -107,67 +107,39 @@ class _MediaScreenState extends State<MediaScreen> {
                             Padding(
                               padding: const EdgeInsets.only(top: 0.0),
                               child: Center(
-                                child: Stack(
-                                  alignment: Alignment.center,
-                                  children: [
-                                    SizedBox(
-                                      height:
-                                          MediaQuery.of(context).size.height *
-                                              0.4,
-                                      width: MediaQuery.of(context).size.width,
-                                      child: widget.provider == "dramacool"
-                                          ? CachedNetworkImage(
-                                              imageUrl: widget.bgImage,
-                                            )
-                                          : CachedMemoryImage(
-                                              uniqueKey:
-                                                  "${widget.provider}_${widget.id}",
-                                              bytes: base64Decode(
-                                                mediaDetails!.cover!.replaceAll(
-                                                    "data:image/jpeg;base64,",
-                                                    ''),
-                                              ),
-                                              fit: BoxFit.cover,
-                                            ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.only(
-                                          left: 16.0, right: 16, top: 16),
-                                      child: SizedBox(
-                                        height:
-                                            MediaQuery.of(context).size.height *
-                                                0.3,
-                                        width:
-                                            MediaQuery.of(context).size.width,
-                                        child: Center(
-                                          child: CachedNetworkImage(
-                                            imageUrl: mediaDetails
-                                                        ?.logos.isNotEmpty ??
-                                                    false
-                                                ? mediaDetails
-                                                        ?.logos.first.url ??
-                                                    ""
-                                                : "",
-                                            errorWidget: (context, url, error) {
-                                              return Text(
-                                                mediaDetails?.title ?? "",
-                                                style: GoogleFonts.bebasNeue(
-                                                  height: 1,
-                                                  fontSize: 72,
-                                                  fontWeight: FontWeight.w800,
-                                                  shadows: [
-                                                    const Shadow(
-                                                      blurRadius: 5,
-                                                      color: Colors.black,
-                                                      offset: Offset(1.0, 1.0),
-                                                    ),
-                                                  ],
-                                                ),
-                                              );
-                                            },
+                                child: SizedBox(
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.4,
+                                  width: MediaQuery.of(context).size.width,
+                                  child: widget.provider == "dramacool"
+                                      ? CachedNetworkImage(
+                                          imageUrl: mediaDetails!.cover!,
+                                        )
+                                      : Image.memory(
+                                          base64Decode(
+                                            mediaDetails!.cover!.replaceAll(
+                                                "data:image/jpeg;base64,", ''),
                                           ),
+                                          fit: BoxFit.cover,
                                         ),
-                                      ),
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                  left: 16.0, right: 16, top: 16),
+                              child: Text(
+                                mediaDetails?.title ?? "",
+                                textAlign: TextAlign.center,
+                                style: GoogleFonts.bebasNeue(
+                                  height: 1,
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.w800,
+                                  shadows: [
+                                    const Shadow(
+                                      blurRadius: 5,
+                                      color: Colors.black,
+                                      offset: Offset(1.0, 1.0),
                                     ),
                                   ],
                                 ),
@@ -194,7 +166,9 @@ class _MediaScreenState extends State<MediaScreen> {
                                                     const FetchingLinkBottomSheet());
                                             mediaController
                                                 .getStreams(
-                                                    mediaDetails!.episodeId!,
+                                                    widget.provider,
+                                                    mediaDetails!
+                                                        .episodes.first.id!,
                                                     mediaDetails!.id!)
                                                 .then((streamModel) {
                                               Navigator.pop(context);
@@ -231,13 +205,13 @@ class _MediaScreenState extends State<MediaScreen> {
                                                 builder: (context) =>
                                                     EpisodeSelect(
                                                   seasons:
-                                                      mediaDetails?.seasons ??
-                                                          [],
+                                                      mediaController.seasons,
                                                   title:
                                                       mediaDetails?.title ?? "",
                                                   controller: mediaController,
                                                   mediaId:
                                                       mediaDetails?.id ?? "",
+                                                  provider: widget.provider,
                                                 ),
                                               ),
                                             );
@@ -289,7 +263,9 @@ class _MediaScreenState extends State<MediaScreen> {
                                         onPressed: () async {
                                           StreamModel model =
                                               await mediaController.getStreams(
-                                                  mediaDetails!.episodeId!,
+                                                  widget.provider,
+                                                  mediaDetails!
+                                                      .episodes.first.id!,
                                                   mediaDetails!.id!);
 
                                           if (isDownload) {
@@ -441,7 +417,7 @@ class _MovieSectionState extends State<MovieSection> {
           ),
         ),
         SimilarAndRecommended(
-          similar: widget.mediaModel?.similar ?? [],
+          similar: widget.mediaModel?.recommendations ?? [],
           provider: widget.provider,
         ),
         Padding(

@@ -1,8 +1,7 @@
 import 'package:buttons_tabbar/buttons_tabbar.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:cineconnect/features/drama/media_controller.dart';
-import 'package:cineconnect/features/video_player/video_player.dart';
-import 'package:cineconnect/features/drama/media_ui.dart';
+import 'package:cineconnect/features/movies_and_shows/drama/media_controller.dart';
+import 'package:cineconnect/features/readers_and_players/video_player.dart';
+import 'package:cineconnect/features/movies_and_shows/drama/media_ui.dart';
 import 'package:cineconnect/models/media_details.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -14,12 +13,14 @@ class EpisodeSelect extends StatefulWidget {
       required this.seasons,
       required this.title,
       required this.controller,
-      required this.mediaId});
+      required this.mediaId,
+      required this.provider});
 
-  final List<Season> seasons;
+  final List<List<Episode>> seasons;
   final String title;
   final MediaController controller;
   final String mediaId;
+  final String provider;
 
   @override
   State<EpisodeSelect> createState() => _EpisodeSelectState();
@@ -57,7 +58,7 @@ class _EpisodeSelectState extends State<EpisodeSelect> {
                       child: Container(
                         margin: const EdgeInsets.symmetric(horizontal: 16),
                         child: Text(
-                          "Season ${element.season}",
+                          "Season ${element.first.season}",
                           style: GoogleFonts.quicksand(
                             fontWeight: FontWeight.w800,
                             color: Colors.white,
@@ -72,7 +73,7 @@ class _EpisodeSelectState extends State<EpisodeSelect> {
               child: TabBarView(
                   children: widget.seasons.map((season) {
                 return ListView.builder(
-                  itemCount: season.episodes.length,
+                  itemCount: season.length,
                   itemBuilder: (context, index) {
                     return Padding(
                       padding: const EdgeInsets.symmetric(
@@ -86,8 +87,8 @@ class _EpisodeSelectState extends State<EpisodeSelect> {
                               builder: (context) =>
                                   const FetchingLinkBottomSheet());
                           widget.controller
-                              .getStreams(
-                                  season.episodes[index].id!, widget.mediaId)
+                              .getStreams(widget.provider,
+                                  season[index].id.toString(), widget.mediaId)
                               .then((streamModel) {
                             Navigator.pop(context);
                             SystemChrome
@@ -119,17 +120,6 @@ class _EpisodeSelectState extends State<EpisodeSelect> {
                               height: MediaQuery.of(context).size.height * 0.2,
                               child: Stack(
                                 children: [
-                                  SizedBox(
-                                    width:
-                                        MediaQuery.of(context).size.width * 0.8,
-                                    height: MediaQuery.of(context).size.height *
-                                        0.2,
-                                    child: CachedNetworkImage(
-                                      imageUrl:
-                                          season.episodes[index].img?.hd ?? "",
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
                                   Padding(
                                     padding: EdgeInsets.only(
                                         left:
@@ -183,8 +173,7 @@ class _EpisodeSelectState extends State<EpisodeSelect> {
                                                     .width *
                                                 0.35,
                                             child: Text(
-                                              season.episodes[index].title
-                                                  .toString(),
+                                              season[index].title.toString(),
                                               textAlign: TextAlign.right,
                                               style: GoogleFonts.quicksand(
                                                 fontWeight: FontWeight.w800,

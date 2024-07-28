@@ -9,12 +9,12 @@ class StreamModel extends Equatable {
 
   final Headers? headers;
   final List<Source> sources;
-  final List<SubtitleLinks> subtitles;
+  final List<SubtitleModel> subtitles;
 
   StreamModel copyWith({
     Headers? headers,
     List<Source>? sources,
-    List<SubtitleLinks>? subtitles,
+    List<SubtitleModel>? subtitles,
   }) {
     return StreamModel(
       headers: headers ?? this.headers,
@@ -32,8 +32,8 @@ class StreamModel extends Equatable {
           : List<Source>.from(json["sources"]!.map((x) => Source.fromJson(x))),
       subtitles: json["subtitles"] == null
           ? []
-          : List<SubtitleLinks>.from(
-              json["subtitles"]!.map((x) => SubtitleLinks.fromJson(x))),
+          : List<SubtitleModel>.from(
+              json["subtitles"]!.map((x) => SubtitleModel.fromJson(x))),
     );
   }
 
@@ -142,8 +142,8 @@ class Source extends Equatable {
       ];
 }
 
-class SubtitleLinks extends Equatable {
-  const SubtitleLinks({
+class SubtitleModel extends Equatable {
+  const SubtitleModel({
     required this.url,
     required this.lang,
   });
@@ -151,18 +151,18 @@ class SubtitleLinks extends Equatable {
   final String? url;
   final String? lang;
 
-  SubtitleLinks copyWith({
+  SubtitleModel copyWith({
     String? url,
     String? lang,
   }) {
-    return SubtitleLinks(
+    return SubtitleModel(
       url: url ?? this.url,
       lang: lang ?? this.lang,
     );
   }
 
-  factory SubtitleLinks.fromJson(Map<String, dynamic> json) {
-    return SubtitleLinks(
+  factory SubtitleModel.fromJson(Map<String, dynamic> json) {
+    return SubtitleModel(
       url: json["url"],
       lang: json["lang"],
     );

@@ -31,6 +31,7 @@ class APIConstants {
   };
 
   static String baseUrl = "https://consumet-instance-shalmon.vercel.app";
+  static String baseBookUrl = "https://books-api-jet-theta.vercel.app";
 
   static String urlGenerator({String? provider, String? searchString}) {
     String validString = searchString!.replaceAll(" ", "%20");
@@ -41,7 +42,12 @@ class APIConstants {
     return "$baseUrl/movies/$provider/info?id=$dramaID";
   }
 
-  static String streamUrl({String? episodeID, String? dramaID}) {
-    return "$baseUrl/meta/tmdb/watch/$episodeID?id=$dramaID";
+  static String streamUrl(
+      {String? provider, String? episodeID, String? dramaID}) {
+    return "$baseUrl/movies/${provider}/watch?episodeId=$episodeID&mediaId=$dramaID";
+  }
+
+  static String searchBookUrl(String searchString) {
+    return "$baseBookUrl/search/${searchString.replaceAll(" ", "%20")}";
   }
 }

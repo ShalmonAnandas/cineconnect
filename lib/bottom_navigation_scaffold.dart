@@ -1,5 +1,6 @@
-import 'package:cineconnect/features/search/search_ui.dart';
-import 'package:cineconnect/features/trending_movies_shows/trending_ui.dart';
+import 'package:cineconnect/features/book_reader/book_search_ui.dart';
+import 'package:cineconnect/features/movies_and_shows/search/search_ui.dart';
+import 'package:cineconnect/features/movies_and_shows/trending_movies_shows/trending_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
 
@@ -50,9 +51,11 @@ class _BottomNavigationScaffoldState extends State<BottomNavigationScaffold> {
       ),
       body: _currentIndex == 0
           ? const HomeScreen()
-          : const SearchScreen(
-              provider: "all",
-            ),
+          : _currentIndex == 2
+              ? const BookSearch()
+              : const SearchScreen(
+                  provider: "all",
+                ),
     );
   }
 }

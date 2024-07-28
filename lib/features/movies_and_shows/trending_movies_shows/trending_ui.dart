@@ -2,9 +2,9 @@ import 'dart:convert';
 
 import 'package:cached_memory_image/cached_memory_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:cineconnect/features/drama/media_ui.dart';
-import 'package:cineconnect/features/search/search_ui.dart';
-import 'package:cineconnect/features/trending_movies_shows/trending_controller.dart';
+import 'package:cineconnect/features/movies_and_shows/drama/media_ui.dart';
+import 'package:cineconnect/features/movies_and_shows/search/search_ui.dart';
+import 'package:cineconnect/features/movies_and_shows/trending_movies_shows/trending_controller.dart';
 import 'package:cineconnect/models/enums.dart';
 import 'package:cineconnect/models/search.dart';
 import 'package:flutter/material.dart';
@@ -120,6 +120,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   itemCount: providerList.length,
                   itemBuilder: (context, index) => InkWell(
                     onTap: () {
+                      controller.isLoading.value = true;
                       selectedProvider.value = providerList[index];
                       setSelectedProvider();
                       getData()
@@ -180,23 +181,39 @@ class _HomeScreenState extends State<HomeScreen> {
                         CarouselSlider.builder(
                           itemCount: trendingResults.length,
                           itemBuilder: (context, index, realIndex) {
-                            return ClipRRect(
-                              borderRadius: BorderRadius.circular(12),
-                              child: CachedMemoryImage(
-                                uniqueKey:
-                                    "${selectedProvider.value}_trending://image/$index",
-                                errorBuilder: (context, string, obj) =>
-                                    Image.asset(
-                                  "assets/default_poster.jpg",
+                            return InkWell(
+                              onTap: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => MediaScreen(
+                                    id: trendingResults[index].id.toString(),
+                                    mediaType: trendingResults[index].type!,
+                                    bgImage: trendingResults[index].image!,
+                                    base64Image:
+                                        trendingResults[index].base64image,
+                                    provider: selectedProvider.value,
+                                  ),
+                                ),
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: CachedMemoryImage(
+                                  uniqueKey:
+                                      "${selectedProvider.value}_trending://image/$index",
+                                  errorBuilder: (context, string, obj) =>
+                                      Image.asset(
+                                    "assets/default_poster.jpg",
+                                    fit: BoxFit.cover,
+                                  ),
+                                  bytes: base64Decode(trendingResults[index]
+                                      .base64image!
+                                      .replaceAll(
+                                          "data:image/jpeg;base64,", '')),
+                                  isAntiAlias: true,
+                                  scale: 10,
+                                  filterQuality: FilterQuality.high,
                                   fit: BoxFit.cover,
                                 ),
-                                bytes: base64Decode(trendingResults[index]
-                                    .base64image!
-                                    .replaceAll("data:image/jpeg;base64,", '')),
-                                isAntiAlias: true,
-                                scale: 10,
-                                filterQuality: FilterQuality.high,
-                                fit: BoxFit.cover,
                               ),
                             );
                           },

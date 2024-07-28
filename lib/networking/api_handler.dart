@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:http/http.dart' as http;
 
 class APIHandler {
@@ -8,5 +10,23 @@ class APIHandler {
     });
 
     return response.body;
+  }
+
+  Future<String?> postRequest({String? url, String? body}) async {
+    var headers = {'Content-Type': 'application/json'};
+    var request = http.Request('POST', Uri.parse(url!));
+    request.body = body!;
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    String? responseString;
+    if (response.statusCode == 200) {
+      responseString = await response.stream.bytesToString();
+    } else {
+      responseString = response.reasonPhrase;
+    }
+
+    return responseString;
   }
 }

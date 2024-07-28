@@ -11,6 +11,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 class MediaController extends GetxController {
   MediaModel? dramaDetails;
   RxBool isLoading = true.obs;
+  List<List<Episode>> seasons = [];
 
   Future<MediaModel> getDramaDetails(String id, String provider) async {
     isLoading.value = true;
@@ -20,8 +21,8 @@ class MediaController extends GetxController {
 
     var mediaDetails = box.get(fetchKey);
 
-    if (mediaDetails != null && jsonDecode(mediaDetails)["statusCode"] != 500) {
-      dramaDetails = MediaModel.fromJson(jsonDecode(mediaDetails));
+    if (mediaDetails != null) {
+      dramaDetails = MediaModel.fromJson(jsonDecode(jsonEncode(mediaDetails)));
     } else {
       String response = await APIHandler().sendRequest(
           APIConstants.dramaDetailsUrl(provider: provider, dramaID: id));
@@ -33,11 +34,31 @@ class MediaController extends GetxController {
       dramaDetails = MediaModel.fromJson(updatedResponse);
       box.put(fetchKey, updatedResponse);
     }
+    getSeasons();
     isLoading.value = false;
     return dramaDetails!;
   }
 
-  Future<StreamModel> getStreams(String episodeID, String mediaID) async {
+  getSeasons() {
+    seasons.clear();
+    int numberOfSeasons = dramaDetails!.episodes
+        .map((episode) => episode.season)
+        .toSet()
+        .toList()
+        .length;
+    for (int i = 1; i <= numberOfSeasons; i++) {
+      List<Episode> tempSeasonList = [];
+      for (Episode episode in dramaDetails!.episodes) {
+        if (episode.season == i) {
+          tempSeasonList.add(episode);
+        }
+      }
+      seasons.add(tempSeasonList);
+    }
+  }
+
+  Future<StreamModel> getStreams(
+      String provider, String episodeID, String mediaID) async {
     DateTime today = DateTime.now();
     String fetchKeyDate = "${today.day}_${today.month}_${today.year}";
     String fetchKey =
@@ -50,8 +71,8 @@ class MediaController extends GetxController {
     if (streamDetails != null) {
       return StreamModel.fromJson(jsonDecode(streamDetails));
     } else {
-      final response = await APIHandler().sendRequest(
-          APIConstants.streamUrl(episodeID: episodeID, dramaID: mediaID));
+      final response = await APIHandler().sendRequest(APIConstants.streamUrl(
+          provider: provider, episodeID: episodeID, dramaID: mediaID));
       Map<String, dynamic> responseMap = jsonDecode(response);
       box.put(fetchKey, response);
       return StreamModel.fromJson(responseMap);
