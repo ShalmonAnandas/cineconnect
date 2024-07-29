@@ -1,13 +1,14 @@
+import 'dart:io';
+
 import 'package:epub_view/epub_view.dart';
 import 'package:flutter/material.dart';
-import 'package:internet_file/internet_file.dart';
-import 'package:internet_file/storage_io.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 class BookReader extends StatefulWidget {
-  const BookReader({super.key, required this.bookUrl});
+  const BookReader({super.key, required this.filePath});
 
-  final String bookUrl;
+  final String filePath;
 
   @override
   State<BookReader> createState() => _BookReaderState();
@@ -15,7 +16,6 @@ class BookReader extends StatefulWidget {
 
 class _BookReaderState extends State<BookReader> {
   EpubController? _epubReaderController;
-  final storageIO = InternetFileStorageIO();
 
   @override
   void initState() {
@@ -24,26 +24,13 @@ class _BookReaderState extends State<BookReader> {
   }
 
   void getBook() async {
-    final directory = await getApplicationDocumentsDirectory();
-    final filePath = '${directory.path}/${widget.bookUrl.split("/").last}';
-    print("filepath ======= $filePath");
+    final prefs = await Hive.openBox("LastPositionBox");
+    final lastLocation = await prefs.get('lastLocation_${widget.filePath}');
+
     final epubController = EpubController(
-        document: EpubDocument.openData(
-          await InternetFile.get(
-            widget.bookUrl,
-            storage: storageIO,
-            storageAdditional: storageIO.additional(
-              filename: filePath,
-              location: '',
-            ),
-            progress: (receivedLength, contentLength) {
-              final percentage = receivedLength / contentLength * 100;
-              print(
-                  'download progress: $receivedLength of $contentLength ($percentage%)');
-            },
-          ),
-        ),
-        epubCfi: "epubcfi(/6/6[chapter-2]!/4/2/1612)");
+      document: EpubDocument.openFile(File(widget.filePath)),
+      epubCfi: lastLocation,
+    );
 
     setState(() {
       _epubReaderController = epubController;
@@ -52,29 +39,45 @@ class _BookReaderState extends State<BookReader> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        appBar: AppBar(
-          title: _epubReaderController == null
-              ? null
-              : EpubViewActualChapter(
-                  controller: _epubReaderController!,
-                  builder: (chapterValue) => Text(
-                    'Chapter: ${chapterValue?.chapter?.Title?.replaceAll('\n', '').trim() ?? ''}',
-                    textAlign: TextAlign.start,
+    return WillPopScope(
+      onWillPop: () async {
+        saveLastLocation();
+        return true;
+      },
+      child: SafeArea(
+        child: Scaffold(
+          appBar: AppBar(
+            title: _epubReaderController == null
+                ? null
+                : EpubViewActualChapter(
+                    controller: _epubReaderController!,
+                    builder: (chapterValue) => Text(
+                      'Chapter: ${chapterValue?.chapter?.Title?.replaceAll('\n', '').trim() ?? ''}',
+                      textAlign: TextAlign.start,
+                      style: GoogleFonts.quicksand(),
+                    ),
                   ),
+          ),
+          body: _epubReaderController == null
+              ? const Center(child: CircularProgressIndicator())
+              : EpubView(
+                  builders: EpubViewBuilders<DefaultBuilderOptions>(
+                    options: DefaultBuilderOptions(
+                        textStyle: GoogleFonts.quicksand()),
+                    chapterDividerBuilder: (_) => const Divider(),
+                  ),
+                  controller: _epubReaderController!,
                 ),
         ),
-        body: _epubReaderController == null
-            ? const Center(child: CircularProgressIndicator())
-            : EpubView(
-                builders: EpubViewBuilders<DefaultBuilderOptions>(
-                  options: const DefaultBuilderOptions(),
-                  chapterDividerBuilder: (_) => const Divider(),
-                ),
-                controller: _epubReaderController!,
-              ),
       ),
     );
+  }
+
+  void saveLastLocation() async {
+    if (_epubReaderController != null) {
+      final prefs = await Hive.openBox("LastPositionBox");
+      final lastLocation = _epubReaderController!.generateEpubCfi();
+      prefs.put('lastLocation_${widget.filePath}', lastLocation!);
+    }
   }
 }

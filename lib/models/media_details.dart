@@ -99,7 +99,7 @@ class MediaModel extends Equatable {
           ? []
           : List<String>.from(json["tags"]!.map((x) => x)),
       production: json["production"],
-      country: json["country"],
+      country: json["country"].toString(),
       duration: json["duration"],
       rating: json["rating"].toString(),
       recommendations: json["recommendations"] == null

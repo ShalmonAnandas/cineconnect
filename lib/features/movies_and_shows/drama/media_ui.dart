@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:ui';
 
 import 'package:cached_memory_image/cached_memory_image.dart';
@@ -117,8 +118,12 @@ class _MediaScreenState extends State<MediaScreen> {
                                         )
                                       : Image.memory(
                                           base64Decode(
-                                            mediaDetails!.cover!.replaceAll(
-                                                "data:image/jpeg;base64,", ''),
+                                            mediaDetails!.cover?.replaceAll(
+                                                    "data:image/jpeg;base64,",
+                                                    '') ??
+                                                mediaDetails!.image!.replaceAll(
+                                                    "data:image/jpeg;base64,",
+                                                    ''),
                                           ),
                                           fit: BoxFit.cover,
                                         ),
@@ -278,33 +283,30 @@ class _MediaScreenState extends State<MediaScreen> {
                                                           uri!)
                                                   .then((safUrl) {
                                                 FFmpegKit.executeAsync(
-                                                    "-i ${model.sources.first.url} -c copy -bsf:a aac_adtstoasc ${safUrl}",
+                                                    "-i ${model.sources.first.url} -c copy -bsf:a aac_adtstoasc $safUrl",
                                                     (Session session) async {
                                                   final returnCode =
                                                       await session
                                                           .getReturnCode();
 
-                                                  print(
-                                                      "session state  ===== ${await session.getState()}");
+                                                  log("session state  ===== ${await session.getState()}");
 
                                                   if (ReturnCode.isSuccess(
                                                       returnCode)) {
-                                                    print("success");
+                                                    log("success");
                                                   } else if (ReturnCode
                                                       .isCancel(returnCode)) {
-                                                    print("dailure");
+                                                    log("dailure");
                                                   } else {
                                                     final logs =
                                                         await session.getLogs();
-                                                    print(
-                                                        "error ${logs.map((element) => element.getMessage().toString())}");
+                                                    log("error ${logs.map((element) => element.getMessage().toString())}");
                                                   }
                                                 }, (Log log) {
-                                                  print(
-                                                      "LOGS :::: ${log.getMessage()}");
+                                                  // log(
+                                                  //     "LOGS :::: ${log.getMessage()}");
                                                 }, (Statistics statistics) {
-                                                  print(
-                                                      "STATS ::::: ${statistics.getSize()}");
+                                                  log("STATS ::::: ${statistics.getSize()}");
                                                 });
                                               });
                                             });

@@ -3,16 +3,20 @@ import 'package:cineconnect/custom_error_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:permission_handler/permission_handler.dart';
+
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   await Hive.initFlutter();
   WidgetsFlutterBinding.ensureInitialized();
-  await FlutterDownloader.initialize(
-      debug:
-          true, // optional: set to false to disable printing logs to console (default: true)
-      ignoreSsl:
-          true // option: set to false to disable working with http links (default: false)
-      );
+  await FlutterDownloader.initialize(debug: true, ignoreSsl: true);
+  var status = await Permission.notification.status;
+
+  if (status == PermissionStatus.denied) {
+    status = await Permission.notification.request();
+  }
+
   runApp(const MyApp());
 }
 
@@ -28,6 +32,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'CineConnect',
+      navigatorKey: navigatorKey,
       theme: ThemeData(
         brightness: Brightness.dark,
         useMaterial3: true,

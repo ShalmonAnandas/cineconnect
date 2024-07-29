@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 
 class BookLinkModel extends Equatable {
-  BookLinkModel({
+  const BookLinkModel({
     required this.bookLinkModelGet,
     required this.cloudflare,
     required this.ipfsIo,

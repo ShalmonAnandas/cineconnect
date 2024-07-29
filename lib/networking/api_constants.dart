@@ -44,7 +44,7 @@ class APIConstants {
 
   static String streamUrl(
       {String? provider, String? episodeID, String? dramaID}) {
-    return "$baseUrl/movies/${provider}/watch?episodeId=$episodeID&mediaId=$dramaID";
+    return "$baseUrl/movies/$provider/watch?episodeId=$episodeID&mediaId=$dramaID";
   }
 
   static String searchBookUrl(String searchString) {

@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 
 class Search extends Equatable {
-  Search({
+  const Search({
     required this.id,
     required this.title,
     required this.url,
