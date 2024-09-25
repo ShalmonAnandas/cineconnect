@@ -24,8 +24,8 @@ class MediaController extends GetxController {
     if (mediaDetails != null) {
       dramaDetails = MediaModel.fromJson(jsonDecode(jsonEncode(mediaDetails)));
     } else {
-      String response = await APIHandler().sendRequest(
-          APIConstants.dramaDetailsUrl(provider: provider, dramaID: id));
+      String response = await APIHandler().makeGetRequest(
+          url: APIConstants.dramaDetailsUrl(provider: provider, dramaID: id));
 
       Map<String, dynamic> updatedResponse = jsonDecode(response);
 
@@ -71,8 +71,9 @@ class MediaController extends GetxController {
     if (streamDetails != null) {
       return StreamModel.fromJson(jsonDecode(streamDetails));
     } else {
-      final response = await APIHandler().sendRequest(APIConstants.streamUrl(
-          provider: provider, episodeID: episodeID, dramaID: mediaID));
+      final response = await APIHandler().makeGetRequest(
+          url: APIConstants.streamUrl(
+              provider: provider, episodeID: episodeID, dramaID: mediaID));
       Map<String, dynamic> responseMap = jsonDecode(response);
       box.put(fetchKey, response);
       return StreamModel.fromJson(responseMap);

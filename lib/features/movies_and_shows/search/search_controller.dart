@@ -30,8 +30,9 @@ class MediaSearchController extends GetxController {
   void getSearchResults() async {
     isLoading.value = true;
 
-    String response = await APIHandler().sendRequest(APIConstants.urlGenerator(
-        provider: provider, searchString: searchTextController.text));
+    String response = await APIHandler().makeGetRequest(
+        url: APIConstants.urlGenerator(
+            provider: provider, searchString: searchTextController.text));
 
     List searchresponse = jsonDecode(response)["results"];
 

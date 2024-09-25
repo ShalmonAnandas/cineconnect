@@ -37,21 +37,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void initState() {
-    getSelectedProvider().then((provider) =>
-        getData().then((value) => controller.isLoading.value = value));
+    getData();
     super.initState();
-  }
-
-  Future<String> getSelectedProvider() async {
-    controller.isLoading.value = true;
-    box = await Hive.openBox('provider_Box');
-    selectedProvider.value = await box.get(fetchKey) ?? providerList.first;
-    return selectedProvider.value;
-  }
-
-  void setSelectedProvider() async {
-    box = await Hive.openBox('provider_Box');
-    box.put(fetchKey, selectedProvider.value);
   }
 
   Future<bool> getData() async {
@@ -80,85 +67,11 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         scrolledUnderElevation: 0,
-        actions: [
-          Obx(
-            () => (!dataNotFound.value)
-                ? Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 0),
-                    child: IconButton(
-                      onPressed: () {
-                        toggleSearch.value = !toggleSearch.value;
-                      },
-                      icon:
-                          Icon(toggleSearch.value ? Icons.close : Icons.search),
-                    ),
-                  )
-                : const SizedBox(),
-          )
-        ],
-        title: Obx(
-          () => Text(
-            selectedProvider.value.toUpperCase(),
-            style: GoogleFonts.quicksand(
-              fontSize: 24,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        ),
-      ),
-      floatingActionButton: SizedBox(
-        width: MediaQuery.of(context).size.width * 0.35,
-        height: 50,
-        child: FloatingActionButton(
-          backgroundColor: Colors.black,
-          onPressed: () {
-            showModalBottomSheet(
-              context: context,
-              builder: (context) => SizedBox(
-                height: 250,
-                child: ListView.builder(
-                  itemCount: providerList.length,
-                  itemBuilder: (context, index) => InkWell(
-                    onTap: () {
-                      controller.isLoading.value = true;
-                      selectedProvider.value = providerList[index];
-                      setSelectedProvider();
-                      getData()
-                          .then((value) => controller.isLoading.value = value);
-                      Navigator.pop(context);
-                    },
-                    child: ListTile(
-                      title: Row(
-                        children: [
-                          if (selectedProvider.value == providerList[index])
-                            const Icon(Icons.check),
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                              horizontal:
-                                  selectedProvider.value == providerList[index]
-                                      ? 16
-                                      : 40,
-                            ),
-                            child: Text(
-                              providerList[index].toUpperCase(),
-                              style: GoogleFonts.quicksand(),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            );
-          },
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.keyboard_double_arrow_down_rounded),
-              const SizedBox(width: 5),
-              Obx(() => Text(selectedProvider.value.toUpperCase())),
-            ],
+        title: Text(
+          "Cineconnect",
+          style: GoogleFonts.quicksand(
+            fontSize: 24,
+            fontWeight: FontWeight.w700,
           ),
         ),
       ),
@@ -170,10 +83,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     width: 100,
                     child: Lottie.asset("assets/cat_loader.json")),
               )
-            : toggleSearch.value
-                ? SearchScreen(
-                    provider: selectedProvider.value,
-                  )
+            : controller.isLoading.value
+                ? Container()
                 : SingleChildScrollView(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -187,28 +98,26 @@ class _HomeScreenState extends State<HomeScreen> {
                                 MaterialPageRoute(
                                   builder: (context) => MediaScreen(
                                     id: trendingResults[index].id.toString(),
-                                    mediaType: trendingResults[index].type!,
-                                    bgImage: trendingResults[index].image!,
+                                    mediaType: "movie",
+                                    bgImage:
+                                        trendingResults[index].backdropPath!,
                                     base64Image:
-                                        trendingResults[index].base64image,
+                                        trendingResults[index].posterPath,
                                     provider: selectedProvider.value,
                                   ),
                                 ),
                               ),
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(12),
-                                child: CachedMemoryImage(
-                                  uniqueKey:
-                                      "${selectedProvider.value}_trending://image/$index",
+                                child: Image.network(
+                                  // uniqueKey:
+                                  //     "${selectedProvider.value}_trending://image/$index",
+                                  trendingResults[index].posterPath ?? "",
                                   errorBuilder: (context, string, obj) =>
                                       Image.asset(
                                     "assets/default_poster.jpg",
                                     fit: BoxFit.cover,
                                   ),
-                                  bytes: base64Decode(trendingResults[index]
-                                      .base64image!
-                                      .replaceAll(
-                                          "data:image/jpeg;base64,", '')),
                                   isAntiAlias: true,
                                   scale: 10,
                                   filterQuality: FilterQuality.high,
@@ -304,9 +213,9 @@ class _HorizontalScrollingWidgetState extends State<HorizontalScrollingWidget> {
                 MaterialPageRoute(
                   builder: (context) => MediaScreen(
                     id: widget.mediaList[index].id.toString(),
-                    mediaType: widget.mediaList[index].type!,
-                    bgImage: widget.mediaList[index].image!,
-                    base64Image: widget.mediaList[index].base64image,
+                    mediaType: "movie",
+                    bgImage: widget.mediaList[index].backdropPath!,
+                    base64Image: widget.mediaList[index].posterPath,
                     provider: widget.provider,
                   ),
                 ),
@@ -318,19 +227,21 @@ class _HorizontalScrollingWidgetState extends State<HorizontalScrollingWidget> {
                   borderRadius: BorderRadius.circular(6),
                   color: Colors.grey.shade900,
                   image: DecorationImage(
-                    image: CachedMemoryImageProvider(
-                      "${widget.provider}_${widget.type.name}://image/$index",
-                      bytes: base64Decode(
-                        widget.mediaList[index].base64image!
-                            .replaceAll("data:image/jpeg;base64,", ''),
-                      ),
+                    image: NetworkImage(
+                      widget.mediaList[index].posterPath ?? "",
+                      //   "${widget.provider}_${widget.type.name}://image/$index",
+                      //   bytes: base64Decode(
+                      //     widget.mediaList[index].base64image!
+                      //         .replaceAll("data:image/jpeg;base64,", ''),
+                      //   ),
+                      // ),
+                      // onError: (exception, stackTrace) => const AssetImage(
+                      //   "assets/default_poster.jpg",
+                      // ),
+                      // isAntiAlias: true,
+                      scale: 10,
+                      // fit: BoxFit.cover,
                     ),
-                    onError: (exception, stackTrace) => const AssetImage(
-                      "assets/default_poster.jpg",
-                    ),
-                    isAntiAlias: true,
-                    scale: 10,
-                    fit: BoxFit.cover,
                   ),
                 ),
               ),

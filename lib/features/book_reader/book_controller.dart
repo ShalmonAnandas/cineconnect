@@ -40,8 +40,8 @@ class BookController extends GetxController {
     isLoading.value = true;
     searchResults.clear();
     try {
-      String response = await APIHandler()
-          .sendRequest(APIConstants.searchBookUrl(searchController.text));
+      String response = await APIHandler().makeGetRequest(
+          url: APIConstants.searchBookUrl(searchController.text));
 
       for (Map<String, dynamic> book in jsonDecode(response)) {
         searchResults.add(BookSearchResult.fromJson(book));

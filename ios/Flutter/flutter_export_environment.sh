@@ -1,7 +1,7 @@
 #!/bin/sh
 # This is a generated file; do not edit or check into version control.
-export "FLUTTER_ROOT=C:\Users\nasha\fvm\versions\stable"
-export "FLUTTER_APPLICATION_PATH=C:\Users\nasha\project\cineconnect"
+export "FLUTTER_ROOT=C:\Users\Shalmon Anandas\fvm\versions\stable"
+export "FLUTTER_APPLICATION_PATH=C:\Users\Shalmon Anandas\projects\cineconnect"
 export "COCOAPODS_PARALLEL_CODE_SIGN=true"
 export "FLUTTER_TARGET=lib\main.dart"
 export "FLUTTER_BUILD_DIR=build"
