@@ -1,4 +1,6 @@
-# cineconnect
+# cineconnect-testing
+
+A testing ground for my cineconnect app. DO NOT INSTALL IT DOESNT WORK
 
 A new Flutter project.
 
